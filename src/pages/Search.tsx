@@ -1,6 +1,4 @@
-
-
-function Search() {
+function Search(): JSX.Element {
   return (
     <div>
       HP

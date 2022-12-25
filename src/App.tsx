@@ -1,5 +1,5 @@
 import Layout from './containers/Layout';
-import SearchPage from './pages/SearchPage';
+import SearchPage from './pages/SearchPage/SearchPage';
 
 function App(): JSX.Element {
   return (

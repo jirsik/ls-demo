@@ -1,7 +1,7 @@
 import { ToastContainer } from 'react-toastify';
 import { Container } from '@mui/material';
 
-import NavBar from '../components/NavBar';
+import NavBar from '../../components/NavBar/NavBar';
 
 import 'react-toastify/dist/ReactToastify.css';
 

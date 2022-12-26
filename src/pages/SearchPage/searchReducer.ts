@@ -7,7 +7,7 @@ export const searchLoadingStartedAC = (): SearchActionType => ({
   type: LOADING_STARTED,
 });
 
-export const searchLoadingDoneAC = (data: any[]): SearchActionType => ({
+export const searchLoadingDoneAC = (data: SearchDataType[]): SearchActionType => ({
   type: LOADING_DONE,
   data,
 });
@@ -17,13 +17,13 @@ const searchReducer = (state: SearchStateType, action: SearchActionType): Search
   switch (action.type) {
     case LOADING_STARTED: {
       return {
-        ...state,
+        data: [],
         loading: true,
       };
     }
     case LOADING_DONE: {
       return {
-        data: action.data as any [],
+        data: action.data as SearchDataType[],
         loading: false,
       };
     }
@@ -36,30 +36,40 @@ const searchReducer = (state: SearchStateType, action: SearchActionType): Search
 // types
 export type SearchStateType = {
   loading: boolean;
-  data: Array<{
-    id: string;
-    url: string;
+  data: SearchDataType[];
+};
+
+export type SearchDataType = {
+  id: string;
+  url: string;
+  name: string;
+  type: {
+    id: number;
     name: string;
-    type: {
-      id: number;
-      name: string;
-    };
-    sport: {
-      id: number;
-      name: string;
-    };
-    images: Array<{
-      path: string;
-      usageId: number;
-      variantTypeId: number;
-    }>;
-    [key: string]: any;
+  };
+  sport: {
+    id: number;
+    name: string;
+  };
+  gender: {
+    id: number;
+    name: string;
+  };
+  defaultCountry: {
+    id: number;
+    name: string;
+  };
+  images: Array<{
+    path: string;
+    usageId: number;
+    variantTypeId: number;
   }>;
+  [key: string]: any;
 };
 
 type SearchActionType = {
   type: typeof LOADING_STARTED | typeof LOADING_DONE;
-  data?: any[];
+  data?: SearchDataType[];
 };
 
 export default searchReducer;

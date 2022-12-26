@@ -1,26 +1,36 @@
 import { ChangeEvent, useReducer, useRef, useState } from 'react';
+import axios from 'axios';
 import { toast } from 'react-toastify';
 import {
   Avatar,
   Box,
   Button,
   FormControlLabel,
+  LinearProgress,
+  Link,
   Paper,
   Radio,
   RadioGroup,
-  Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow,
-  TextField
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
 } from '@mui/material';
+import Replay from '@mui/icons-material/Replay';
 
-import searchReducer, { searchLoadingDoneAC, searchLoadingStartedAC } from './searchReducer';
+import searchReducer, { SearchDataType, searchLoadingDoneAC, searchLoadingStartedAC } from './searchReducer';
 import { SearchTypeEnum } from '../../enums/SearchTypeEnum';
+import SearchDetailModal from '../../components/modals/SearchDetailModal/SearchDetailModal';
 
 const prepareSearchUrl = (filter: string, query: string): string =>
   `https://s.livesport.services/api/v2/search?type-ids=${filter}&project-type-id=1&project-id=602&lang-id=1&q=${query}&sport-ids=1,2,3,4,5,6,7,8,9`;
 
 function SearchPage(): JSX.Element {
   const searchInput = useRef<HTMLInputElement>(null);
+  const [detailModalData, setDetailModalData] = useState<SearchDataType | null>(null);
   const [filter, setFilter] = useState<string>([
     SearchTypeEnum.COMPETITION,
     SearchTypeEnum.PLAYER,
@@ -47,32 +57,60 @@ function SearchPage(): JSX.Element {
 
     try {
       dispatch(searchLoadingStartedAC());
-      const response = await fetch(prepareSearchUrl(filter, searchInput.current.value));
+      const response = await axios.get(prepareSearchUrl(filter, searchInput.current.value));
 
-      if (!response.ok) {
-        throw new Error('Request failed.');
-      }
-
-      data = await response.json();
+      data = response.data;
     } catch (err) {
       data = [];
-      toast.error('Loading failed.');
+      toast.error(
+        <Box
+          display="flex"
+          justifyContent="space-between"
+        >
+          <span>Loading failed.</span>
+          <Replay color="warning" onClick={() => {
+            toast.dismiss('loadingError');
+            void doSearch();
+          }} />
+        </Box>,
+        {
+          toastId: 'loadingError',
+        },
+      );
     } finally {
       dispatch(searchLoadingDoneAC(data));
     }
   };
 
+  const openDetailModal = (data: SearchDataType): void => setDetailModalData(data);
+
+  const closeDetailModal = (): void => setDetailModalData(null);
+
   return (
     <>
-      <Box sx={{ margin: 5 }}>
-        <TextField
-          label="Search"
-          id="outlined-size-normal"
-          size="small"
-          inputRef={searchInput}
-        />
+      <Box mt={5} mb={5}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+        >
+          <TextField
+            label="Search"
+            id="outlined-size-normal"
+            size="small"
+            inputRef={searchInput}
+            sx={{ minWidth: 350 }}
+          />
 
-        <Button variant="contained" size="medium" onClick={doSearch}>Search</Button>
+          <Button
+            variant="contained"
+            size="medium"
+            onClick={() => {
+              void doSearch();
+            }}
+          >
+            Search
+          </Button>
+        </Box>
 
         <RadioGroup
           row
@@ -102,44 +140,46 @@ function SearchPage(): JSX.Element {
 
       </Box>
 
-      <Box>
-        {loading
-          ? 'Loading...'
-          : (
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="search results">
-                <TableHead>
-                  <TableRow sx={{ '.MuiTableCell-root': { fontWeight: 800 } }}>
-                    <TableCell />
-                    <TableCell>Name</TableCell>
-                    <TableCell>Type</TableCell>
-                    <TableCell>Sport</TableCell>
-                    <TableCell />
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {data.map((item) => (
-                    <TableRow
-                      key={item.id}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        <Avatar
-                          alt={item.name}
-                          src={`https://www.livesport.cz/res/image/data/${(item.images).find((img: any) => img.variantTypeId === 15)?.path ?? 'non-existing-image.png'}`}
-                        />
-                      </TableCell>
-                      <TableCell>{item.name}</TableCell>
-                      <TableCell>{item.type.name}</TableCell>
-                      <TableCell>{item.sport.name}</TableCell>
-                      <TableCell>show detail</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            )}
+      <Box mb={5}>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="search results">
+            <TableHead>
+              <TableRow sx={{ '.MuiTableCell-root': { fontWeight: 800 } }}>
+                <TableCell />
+                <TableCell>Name</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Sport</TableCell>
+                <TableCell />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map((item) => (
+                <TableRow
+                  key={item.id}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    <Avatar
+                      alt={item.name}
+                      src={`https://www.livesport.cz/res/image/data/${(item.images).find((img) => img.variantTypeId === 15)?.path ?? 'non-existing-image.png'}`}
+                    />
+                  </TableCell>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.type.name}</TableCell>
+                  <TableCell>{item.sport.name}</TableCell>
+                  <TableCell><Link href="#" onClick={() => openDetailModal(item)}>show detail</Link></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        {loading && <LinearProgress color="primary" />}
       </Box>
+
+      <SearchDetailModal
+        data={detailModalData}
+        onClose={closeDetailModal}
+      />
     </>
   );
 }

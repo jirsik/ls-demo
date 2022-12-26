@@ -1,19 +1,29 @@
-import { useReducer, useRef } from 'react';
+import { ChangeEvent, useReducer, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
-import { Box, Button, TextField } from '@mui/material';
+import { Box, Button, FormControlLabel, Radio, RadioGroup, TextField } from '@mui/material';
 
 import searchReducer, { searchLoadingDoneAC, searchLoadingStartedAC } from './searchReducer';
 import { SearchTypeEnum } from '../../enums/SearchTypeEnum';
 
-const prepareSearchUrl = (types: SearchTypeEnum[]): string =>
-  `https://s.livesport.services/api/v2/search?type-ids=${types.join(',')}&project-type-id=1&project-id=602&lang-id=1&q=dj&sport-ids=1,2,3,4,5,6,7,8,9`;
+const prepareSearchUrl = (filter: string, query: string): string =>
+  `https://s.livesport.services/api/v2/search?type-ids=${filter}&project-type-id=1&project-id=602&lang-id=1&q=${query}&sport-ids=1,2,3,4,5,6,7,8,9`;
 
 function SearchPage(): JSX.Element {
   const searchInput = useRef<HTMLInputElement>(null);
+  const [filter, setFilter] = useState<string>([
+    SearchTypeEnum.COMPETITION,
+    SearchTypeEnum.PLAYER,
+    SearchTypeEnum.TEAM,
+    SearchTypeEnum.TEAM_MEMBER,
+  ].join(','));
   const [{ loading, data }, dispatch] = useReducer(
     searchReducer,
     { loading: false, data: [] },
   );
+
+  const handleFilterRadioGroup = (e: ChangeEvent<HTMLInputElement>): void => {
+    setFilter(e.target.value);
+  };
 
   const doSearch = async(): Promise<void> => {
     if (searchInput.current === null || searchInput.current.value.length < 2) {
@@ -26,7 +36,7 @@ function SearchPage(): JSX.Element {
 
     try {
       dispatch(searchLoadingStartedAC());
-      const response = await fetch(prepareSearchUrl([SearchTypeEnum.SPORT]));
+      const response = await fetch(prepareSearchUrl(filter, searchInput.current.value));
 
       if (!response.ok) {
         throw new Error('Request failed.');
@@ -52,6 +62,33 @@ function SearchPage(): JSX.Element {
         />
 
         <Button variant="contained" size="medium" onClick={doSearch}>Search</Button>
+
+        <RadioGroup
+          row
+          value={filter}
+          name="filter"
+          onChange={handleFilterRadioGroup}
+        >
+          <FormControlLabel
+            value={[
+              SearchTypeEnum.COMPETITION,
+              SearchTypeEnum.PLAYER,
+              SearchTypeEnum.TEAM,
+              SearchTypeEnum.TEAM_MEMBER,
+            ].join(',')}
+            control={<Radio/>}
+            label="All"
+          />
+
+          <FormControlLabel value={SearchTypeEnum.COMPETITION} control={<Radio />} label="Competitions" />
+
+          <FormControlLabel value={[
+            SearchTypeEnum.PLAYER,
+            SearchTypeEnum.TEAM,
+            SearchTypeEnum.TEAM_MEMBER,
+          ].join(',')} control={<Radio />} label="Participants" />
+        </RadioGroup>
+
       </Box>
 
       <Box>

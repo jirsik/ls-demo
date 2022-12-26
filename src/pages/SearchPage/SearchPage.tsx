@@ -1,6 +1,17 @@
 import { ChangeEvent, useReducer, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
-import { Box, Button, FormControlLabel, Radio, RadioGroup, TextField } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  Button,
+  FormControlLabel,
+  Paper,
+  Radio,
+  RadioGroup,
+  Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow,
+  TextField
+} from '@mui/material';
 
 import searchReducer, { searchLoadingDoneAC, searchLoadingStartedAC } from './searchReducer';
 import { SearchTypeEnum } from '../../enums/SearchTypeEnum';
@@ -92,7 +103,42 @@ function SearchPage(): JSX.Element {
       </Box>
 
       <Box>
-        {loading ? 'Loading...' : JSON.stringify(data)}
+        {loading
+          ? 'Loading...'
+          : (
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="search results">
+                <TableHead>
+                  <TableRow sx={{ '.MuiTableCell-root': { fontWeight: 800 } }}>
+                    <TableCell />
+                    <TableCell>Name</TableCell>
+                    <TableCell>Type</TableCell>
+                    <TableCell>Sport</TableCell>
+                    <TableCell />
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data.map((item) => (
+                    <TableRow
+                      key={item.id}
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        <Avatar
+                          alt={item.name}
+                          src={`https://www.livesport.cz/res/image/data/${(item.images).find((img: any) => img.variantTypeId === 15)?.path ?? 'non-existing-image.png'}`}
+                        />
+                      </TableCell>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell>{item.type.name}</TableCell>
+                      <TableCell>{item.sport.name}</TableCell>
+                      <TableCell>show detail</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            )}
       </Box>
     </>
   );

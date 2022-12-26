@@ -36,7 +36,25 @@ const searchReducer = (state: SearchStateType, action: SearchActionType): Search
 // types
 export type SearchStateType = {
   loading: boolean;
-  data: any[]; // @TODO
+  data: Array<{
+    id: string;
+    url: string;
+    name: string;
+    type: {
+      id: number;
+      name: string;
+    };
+    sport: {
+      id: number;
+      name: string;
+    };
+    images: Array<{
+      path: string;
+      usageId: number;
+      variantTypeId: number;
+    }>;
+    [key: string]: any;
+  }>;
 };
 
 type SearchActionType = {

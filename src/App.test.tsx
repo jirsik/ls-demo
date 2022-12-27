@@ -1,9 +1,11 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders main layout', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const headElement = screen.getByText('Livesport demo');
+  const searchInputElement = screen.getByRole('textbox');
+
+  expect(headElement).toBeInTheDocument();
+  expect(searchInputElement).toBeInTheDocument();
 });

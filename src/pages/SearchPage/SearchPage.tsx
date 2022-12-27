@@ -33,8 +33,8 @@ function SearchPage(): JSX.Element {
   const [detailModalData, setDetailModalData] = useState<SearchDataType | null>(null);
   const [filter, setFilter] = useState<string>([
     SearchTypeEnum.COMPETITION,
-    SearchTypeEnum.PLAYER,
     SearchTypeEnum.TEAM,
+    SearchTypeEnum.PLAYER,
     SearchTypeEnum.TEAM_MEMBER,
   ].join(','));
   const [{ loading, data }, dispatch] = useReducer(
@@ -121,8 +121,8 @@ function SearchPage(): JSX.Element {
           <FormControlLabel
             value={[
               SearchTypeEnum.COMPETITION,
-              SearchTypeEnum.PLAYER,
               SearchTypeEnum.TEAM,
+              SearchTypeEnum.PLAYER,
               SearchTypeEnum.TEAM_MEMBER,
             ].join(',')}
             control={<Radio/>}
@@ -132,8 +132,8 @@ function SearchPage(): JSX.Element {
           <FormControlLabel value={SearchTypeEnum.COMPETITION} control={<Radio />} label="Competitions" />
 
           <FormControlLabel value={[
-            SearchTypeEnum.PLAYER,
             SearchTypeEnum.TEAM,
+            SearchTypeEnum.PLAYER,
             SearchTypeEnum.TEAM_MEMBER,
           ].join(',')} control={<Radio />} label="Participants" />
         </RadioGroup>

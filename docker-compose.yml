@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+    livesport-demo:
+        container_name: livesport-demo
+        build:
+            context: .
+            dockerfile: docker/Dockerfile
+            target: node-setup-local
+        command:
+            -   bin/docker/StartLocal.sh
+        volumes:
+            - .:/app
+        ports:
+            - "3000:3000"

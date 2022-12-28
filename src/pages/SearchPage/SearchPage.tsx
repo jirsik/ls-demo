@@ -53,7 +53,7 @@ function SearchPage(): JSX.Element {
       return;
     }
 
-    let data;
+    let data = [];
 
     try {
       dispatch(searchLoadingStartedAC());
@@ -61,7 +61,6 @@ function SearchPage(): JSX.Element {
 
       data = response.data;
     } catch (err) {
-      data = [];
       toast.error(
         <Box
           display="flex"
@@ -152,6 +151,7 @@ function SearchPage(): JSX.Element {
                 <TableCell />
               </TableRow>
             </TableHead>
+
             <TableBody>
               {data.map((item) => (
                 <TableRow
@@ -173,6 +173,7 @@ function SearchPage(): JSX.Element {
             </TableBody>
           </Table>
         </TableContainer>
+
         {loading && <LinearProgress color="primary" />}
       </Box>
 

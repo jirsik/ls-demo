@@ -1,6 +1,6 @@
 all: dcBuild up
 
-dcBbuild:
+dcBuild:
 	$ docker-compose build --no-cache
 
 up:
@@ -14,6 +14,12 @@ i:
 
 lint:
 	$ docker-compose exec livesport-demo npm run lint
+
+lint-fix:
+	$ docker-compose exec livesport-demo npm run lint-fix
+
+tests:
+	$ docker-compose exec livesport-demo npm run test
 
 sh:
 	$ docker-compose exec livesport-demo sh

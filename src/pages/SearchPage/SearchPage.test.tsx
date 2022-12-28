@@ -1,7 +1,7 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import axios from 'axios';
-import SearchPage from './SearchPage';
 import { toast } from 'react-toastify';
+import axios from 'axios';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import SearchPage from './SearchPage';
 
 type MockedAxiosType = { get: jest.MockedFunction<typeof axios.get> };
 
@@ -53,7 +53,7 @@ const resExampleData1 = [
   },
 ];
 
-const setup = (preventResolvingGet: boolean = false): { mockedAxios: MockedAxiosType; radio2: any; radio3: any; button: any } => {
+const setup = (preventResolvingGet: boolean = false): { mockedAxios: MockedAxiosType; radio2: HTMLElement; radio3: HTMLElement; button: HTMLElement } => {
   axios.get = jest.fn();
   const mockedAxios = axios as unknown as MockedAxiosType;
 

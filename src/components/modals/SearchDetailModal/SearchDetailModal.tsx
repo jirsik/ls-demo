@@ -3,6 +3,7 @@ import { SearchDataType } from '../../../pages/SearchPage/searchReducer';
 
 type Props = {
   data: SearchDataType | null;
+  prepareAvatarSource: (item: SearchDataType) => string;
   onClose: () => void;
 };
 
@@ -19,7 +20,7 @@ const detailModalStyle = {
   p: 4,
 };
 
-function SearchDetailModal({ data, onClose }: Props): JSX.Element {
+function SearchDetailModal({ data, prepareAvatarSource, onClose }: Props): JSX.Element {
   return (
     <Modal
       open={data !== null}
@@ -39,7 +40,7 @@ function SearchDetailModal({ data, onClose }: Props): JSX.Element {
             <Box mt={5} mb={5}>
               <Avatar
                 alt={data.name}
-                src={`https://www.livesport.cz/res/image/data/${(data.images).find((img) => img.variantTypeId === 15)?.path ?? 'non-existing-image.png'}`}
+                src={prepareAvatarSource(data)}
                 sx={{ width: 100, height: 100 }}
                 variant="rounded"
               />
@@ -62,6 +63,6 @@ function SearchDetailModal({ data, onClose }: Props): JSX.Element {
       </Box>
     </Modal>
   );
-};
+}
 
 export default SearchDetailModal;

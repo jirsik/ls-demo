@@ -9,7 +9,7 @@ Simple react application consuming livesport search API
 - Docker Compose
 
 
-### Run the app
+### Run the app locally
 The easiest way is to use provided Makefile
 
 For the first time just run "make" to build the container, install dependencies and start the dev server.

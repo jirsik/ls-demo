@@ -1,3 +1,3 @@
 #!/bin/sh
-npm install &&
+[ ! -d "/node_modules" ] && npm install
 npm run start

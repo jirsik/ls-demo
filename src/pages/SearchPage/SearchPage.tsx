@@ -22,28 +22,43 @@ import {
 import Replay from '@mui/icons-material/Replay';
 
 import searchReducer, { SearchDataType, searchLoadingDoneAC, searchLoadingStartedAC } from './searchReducer';
+import { apiRoutes, assetRoutes } from '../../api/api';
+import { SearchFilterEnum } from '../../enums/SearchFilterEnum';
 import { SearchTypeEnum } from '../../enums/SearchTypeEnum';
 import SearchDetailModal from '../../components/modals/SearchDetailModal/SearchDetailModal';
-
-const prepareSearchUrl = (filter: string, query: string): string =>
-  `https://s.livesport.services/api/v2/search?type-ids=${filter}&project-type-id=1&project-id=602&lang-id=1&q=${query}&sport-ids=1,2,3,4,5,6,7,8,9`;
 
 function SearchPage(): JSX.Element {
   const searchInput = useRef<HTMLInputElement>(null);
   const [detailModalData, setDetailModalData] = useState<SearchDataType | null>(null);
-  const [filter, setFilter] = useState<string>([
-    SearchTypeEnum.COMPETITION,
-    SearchTypeEnum.TEAM,
-    SearchTypeEnum.PLAYER,
-    SearchTypeEnum.TEAM_MEMBER,
-  ].join(','));
+  const [filter, setFilter] = useState<SearchFilterEnum>(SearchFilterEnum.ALL);
   const [{ loading, data }, dispatch] = useReducer(
     searchReducer,
     { loading: false, data: [] },
   );
 
   const handleFilterRadioGroup = (e: ChangeEvent<HTMLInputElement>): void => {
-    setFilter(e.target.value);
+    setFilter(e.target.value as SearchFilterEnum);
+  };
+
+  const prepareFilterAsString = (): string => {
+    switch (filter) {
+      case SearchFilterEnum.PARTICIPANTS:
+        return [
+          SearchTypeEnum.TEAM,
+          SearchTypeEnum.PLAYER,
+          SearchTypeEnum.TEAM_MEMBER,
+        ].join(',');
+      case SearchFilterEnum.COMPETITION:
+        return SearchTypeEnum.COMPETITION.toString();
+      case SearchFilterEnum.ALL:
+      default:
+        return [
+          SearchTypeEnum.COMPETITION,
+          SearchTypeEnum.TEAM,
+          SearchTypeEnum.PLAYER,
+          SearchTypeEnum.TEAM_MEMBER,
+        ].join(',');
+    }
   };
 
   const doSearch = async(): Promise<void> => {
@@ -57,7 +72,7 @@ function SearchPage(): JSX.Element {
 
     try {
       dispatch(searchLoadingStartedAC());
-      const response = await axios.get(prepareSearchUrl(filter, searchInput.current.value));
+      const response = await axios.get(apiRoutes.search(prepareFilterAsString(), searchInput.current.value));
 
       data = response.data;
     } catch (err) {
@@ -79,6 +94,15 @@ function SearchPage(): JSX.Element {
     } finally {
       dispatch(searchLoadingDoneAC(data));
     }
+  };
+
+  const prepareAvatarSource = (item: SearchDataType): string => {
+    const imageVariant = item.images.find((img) => img.variantTypeId === 15);
+    const imageVariantA = item.images.find((img) => img.variantTypeId !== 15);
+
+    // eslint-disable-next-line no-console
+    console.log(imageVariantA);
+    return imageVariant !== undefined ? assetRoutes.image(imageVariant.path) : 'data:,';
   };
 
   const openDetailModal = (data: SearchDataType): void => setDetailModalData(data);
@@ -117,26 +141,12 @@ function SearchPage(): JSX.Element {
           name="filter"
           onChange={handleFilterRadioGroup}
         >
-          <FormControlLabel
-            value={[
-              SearchTypeEnum.COMPETITION,
-              SearchTypeEnum.TEAM,
-              SearchTypeEnum.PLAYER,
-              SearchTypeEnum.TEAM_MEMBER,
-            ].join(',')}
-            control={<Radio/>}
-            label="All"
-          />
+          <FormControlLabel value={SearchFilterEnum.ALL} control={<Radio/>} label="All" />
 
-          <FormControlLabel value={SearchTypeEnum.COMPETITION} control={<Radio />} label="Competitions" />
+          <FormControlLabel value={SearchFilterEnum.COMPETITION} control={<Radio />} label="Competitions" />
 
-          <FormControlLabel value={[
-            SearchTypeEnum.TEAM,
-            SearchTypeEnum.PLAYER,
-            SearchTypeEnum.TEAM_MEMBER,
-          ].join(',')} control={<Radio />} label="Participants" />
+          <FormControlLabel value={SearchFilterEnum.PARTICIPANTS} control={<Radio />} label="Participants" />
         </RadioGroup>
-
       </Box>
 
       <Box mb={5}>
@@ -161,7 +171,7 @@ function SearchPage(): JSX.Element {
                   <TableCell component="th" scope="row">
                     <Avatar
                       alt={item.name}
-                      src={`https://www.livesport.cz/res/image/data/${(item.images).find((img) => img.variantTypeId === 15)?.path ?? 'non-existing-image.png'}`}
+                      src={prepareAvatarSource(item)}
                     />
                   </TableCell>
                   <TableCell>{item.name}</TableCell>
@@ -179,6 +189,7 @@ function SearchPage(): JSX.Element {
 
       <SearchDetailModal
         data={detailModalData}
+        prepareAvatarSource={prepareAvatarSource}
         onClose={closeDetailModal}
       />
     </>

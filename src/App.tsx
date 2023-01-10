@@ -1,11 +1,14 @@
+import { StrictMode } from 'react';
 import Layout from './containers/Layout/Layout';
 import SearchPage from './pages/SearchPage/SearchPage';
 
 function App(): JSX.Element {
   return (
-    <Layout>
-      <SearchPage />
-    </Layout>
+    <StrictMode>
+      <Layout>
+        <SearchPage />
+      </Layout>
+    </StrictMode>
   );
 }
 
